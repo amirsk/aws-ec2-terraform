@@ -92,10 +92,19 @@ resource "aws_security_group_rule" "ssh_ingress" {
   security_group_id = aws_security_group.app_server.id
 }
 
-resource "aws_security_group_rule" "http_ingress" {
+resource "aws_security_group_rule" "http_ingress_80" {
   type              = "ingress"
   from_port         = 80
   to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.app_server.id
+}
+
+resource "aws_security_group_rule" "http_ingress_8080" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.app_server.id
@@ -155,6 +164,32 @@ resource "aws_instance" "app_server" {
               wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
               chmod +x ./install
               sudo ./install auto
+
+              # Install and configure the unified CloudWatch agent
+              sudo yum install -y amazon-cloudwatch-agent
+
+              # Create the CloudWatch agent configuration file
+              sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json > /dev/null <<EOF_CONFIG
+              {
+                "logs": {
+                  "logs_collected": {
+                    "files": {
+                      "collect_list": [
+                        {
+                          "file_path": "/home/ec2-user/app/log/app.log",
+                          "log_group_name": "${aws_cloudwatch_log_group.app_server_logs.name}",
+                          "log_stream_name": "${aws_cloudwatch_log_stream.app_server_log_stream.name}"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+              EOF_CONFIG
+
+              # Start the CloudWatch agent
+              sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+
               EOF
 
   tags = {
@@ -191,6 +226,27 @@ resource "aws_iam_role_policy" "ec2_s3_access_policy" {
     Statement = [
       {
         Action   = ["s3:Get*", "s3:List*"]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Create an IAM policy for CloudWatch Logs permissions
+resource "aws_iam_role_policy" "ec2_cloudwatch_access_policy" {
+  name        = "CodeDeployDemo-CloudWatchLogs-Permissions"
+  role = aws_iam_role.ec2_s3_access_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
         Effect   = "Allow"
         Resource = "*"
       }
@@ -289,8 +345,20 @@ resource "aws_codedeploy_deployment_group" "aws-ec2-starter-deployment_group" {
   service_role_arn = aws_iam_role.codedeploy_service_role.arn
 
   deployment_config_name = "CodeDeployDefault.OneAtATime"
+}
 
-  # Specify the S3 bucket and object key where deployment artifacts are stored
+# Create an AWS CloudWatch Logs log group
+resource "aws_cloudwatch_log_group" "app_server_logs" {
+  name              = "/EC2HelloWorld/Applogs"
+  retention_in_days = 30
+  tags = {
+    Type = "Terraform"
+    Name = "app_server_logs"
+  }
+}
 
-
+# Create a log stream within the log group
+resource "aws_cloudwatch_log_stream" "app_server_log_stream" {
+  name           = "app-log-stream"
+  log_group_name = aws_cloudwatch_log_group.app_server_logs.name
 }
