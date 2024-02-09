@@ -41,3 +41,15 @@ output "ingress_rule_id" {
 output "egress_rule_id" {
   value = [for k, v in aws_vpc_security_group_egress_rule.egress_rule : v.id]
 }
+
+output "role_id" {
+  value = aws_iam_role.ec2_role.id
+}
+
+output "policy_id" {
+  value = aws_iam_policy.iam_allow.id
+}
+
+output "web_instance_profile_id" {
+  value = aws_iam_instance_profile.web.id
+}

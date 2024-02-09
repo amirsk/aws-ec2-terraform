@@ -6,6 +6,8 @@ resource "aws_instance" "web" {
   subnet_id              = aws_subnet.web.id
   vpc_security_group_ids = [aws_security_group.web.id]
 
+  iam_instance_profile = aws_iam_instance_profile.web.name
+
   user_data = file(var.user_data)
 
   tags = {
