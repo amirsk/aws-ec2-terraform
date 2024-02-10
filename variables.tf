@@ -47,3 +47,23 @@ variable "user_data" {
   type        = string
   description = "Path to EC2 User Data"
 }
+
+variable "ebs_size" {
+  type        = number
+  description = "EBS Size in GB"
+}
+
+variable "ebs_type" {
+  type        = string
+  description = "EBS Type"
+}
+
+variable "device_name" {
+  type        = string
+  description = "EBS Devide Name"
+}
+
+variable "recycle_ebs_retention_period" {
+  type        = number
+  description = "Retention period for EBS Recycle in Days"
+}

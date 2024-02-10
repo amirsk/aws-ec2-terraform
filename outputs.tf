@@ -53,3 +53,15 @@ output "policy_id" {
 output "web_instance_profile_id" {
   value = aws_iam_instance_profile.web.id
 }
+
+output "ebs_id" {
+  value = aws_ebs_volume.web.id
+}
+
+output "ebs_snapshot_id" {
+  value = aws_ebs_snapshot.web_snapshot.id
+}
+
+output "recycle_bin_id" {
+  value = aws_rbin_rule.web.id
+}
