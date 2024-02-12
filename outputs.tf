@@ -1,9 +1,9 @@
 output "ec2_id" {
-  value = aws_instance.web.id
+  value = aws_instance.web[*].id
 }
 
 output "public_dns" {
-  value = aws_instance.web.public_dns
+  value = aws_instance.web[*].public_dns
 }
 
 output "ami_id" {
@@ -23,11 +23,11 @@ output "internet_gateway_id" {
 }
 
 output "subnet_id" {
-  value = aws_subnet.web.id
+  value = aws_subnet.web[*].id
 }
 
 output "route_table_id" {
-  value = aws_route_table.web.id
+  value = aws_route_table.web[*].id
 }
 
 output "security_group_id" {
@@ -54,14 +54,14 @@ output "web_instance_profile_id" {
   value = aws_iam_instance_profile.web.id
 }
 
-output "ebs_id" {
-  value = aws_ebs_volume.web.id
-}
-
-output "ebs_snapshot_id" {
-  value = aws_ebs_snapshot.web_snapshot.id
-}
-
-output "recycle_bin_id" {
-  value = aws_rbin_rule.web.id
-}
+#output "ebs_id" {
+#  value = aws_ebs_volume.web.id
+#}
+#
+#output "ebs_snapshot_id" {
+#  value = aws_ebs_snapshot.web_snapshot.id
+#}
+#
+#output "recycle_bin_id" {
+#  value = aws_rbin_rule.web.id
+#}

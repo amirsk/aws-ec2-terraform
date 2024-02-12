@@ -2,30 +2,56 @@ resource "aws_vpc" "web" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
   enable_dns_support   = true
+
+  tags = {
+    Name = "HelloWorld"
+  }
 }
 
 resource "aws_internet_gateway" "web" {
   vpc_id = aws_vpc.web.id
-}
 
-resource "aws_subnet" "web" {
-  vpc_id                  = aws_vpc.web.id
-  cidr_block              = var.public_subnet_cidr_block
-  availability_zone       = var.availability_zone
-  map_public_ip_on_launch = true
-}
-
-resource "aws_route_table" "web" {
-  vpc_id = aws_vpc.web.id
-  route {
-    cidr_block = var.public_route_table_cidr_block
-    gateway_id = aws_internet_gateway.web.id
+  tags = {
+    Name = "HelloWorld"
   }
 }
 
+resource "aws_subnet" "web" {
+  count = length(var.public_subnet_cidr_block)
+
+  vpc_id                  = aws_vpc.web.id
+  cidr_block              = element(var.public_subnet_cidr_block, count.index)
+  availability_zone       = element(var.availability_zone, count.index)
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "HelloWorld${count.index}"
+  }
+}
+
+resource "aws_route_table" "web" {
+  count = length(var.public_subnet_cidr_block)
+
+  vpc_id = aws_vpc.web.id
+
+  tags = {
+    Name = "HelloWorld${count.index}"
+  }
+}
+
+resource "aws_route" "web" {
+  count = length(var.public_subnet_cidr_block)
+
+  route_table_id         = element(aws_route_table.web[*].id, count.index)
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.web.id
+}
+
 resource "aws_route_table_association" "app_server" {
-  route_table_id = aws_route_table.web.id
-  subnet_id      = aws_subnet.web.id
+  count = length(var.public_subnet_cidr_block)
+
+  subnet_id      = element(aws_subnet.web[*].id, count.index)
+  route_table_id = element(aws_route_table.web[*].id, count.index)
 }
 
 resource "aws_security_group" "web" {

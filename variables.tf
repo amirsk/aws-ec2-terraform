@@ -4,7 +4,7 @@ variable "aws_region" {
 }
 
 variable "availability_zone" {
-  type        = string
+  type        = list(string)
   description = "Availability Zone"
 }
 
@@ -24,12 +24,7 @@ variable "vpc_cidr_block" {
 }
 
 variable "public_subnet_cidr_block" {
-  type        = string
-  description = "Public Subnet CIDR block"
-}
-
-variable "public_route_table_cidr_block" {
-  type        = string
+  type        = list(string)
   description = "Public Subnet CIDR block"
 }
 
