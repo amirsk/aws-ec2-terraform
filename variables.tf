@@ -38,6 +38,11 @@ variable "egress_rules" {
   description = "Egress Rules"
 }
 
+variable "efs_ingress_rules" {
+  type        = map(string)
+  description = "EFS Ingress Rules"
+}
+
 variable "user_data" {
   type        = string
   description = "Path to EC2 User Data"
@@ -55,10 +60,25 @@ variable "ebs_type" {
 
 variable "device_name" {
   type        = string
-  description = "EBS Devide Name"
+  description = "EBS Device Name"
 }
 
-variable "recycle_ebs_retention_period" {
-  type        = number
-  description = "Retention period for EBS Recycle in Days"
+variable "transition_to_ia" {
+  type        = string
+  description = "EFS transition to IA time"
+}
+
+variable "throughput_mode" {
+  type        = string
+  description = "EFS throughput mode"
+}
+
+variable "performance_mode" {
+  type        = string
+  description = "EFS performance mode"
+}
+
+variable "efs_encrypted" {
+  type        = bool
+  description = "EFS encrypted"
 }

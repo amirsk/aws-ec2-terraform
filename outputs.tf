@@ -42,6 +42,14 @@ output "egress_rule_id" {
   value = [for k, v in aws_vpc_security_group_egress_rule.egress_rule : v.id]
 }
 
+output "efs_security_group_id" {
+  value = aws_security_group.efs.id
+}
+
+output "efs_ingress_rule_id" {
+  value = aws_vpc_security_group_ingress_rule.efs_ingress_rule.id
+}
+
 output "role_id" {
   value = aws_iam_role.ec2_role.id
 }
@@ -54,14 +62,10 @@ output "web_instance_profile_id" {
   value = aws_iam_instance_profile.web.id
 }
 
-#output "ebs_id" {
-#  value = aws_ebs_volume.web.id
-#}
-#
-#output "ebs_snapshot_id" {
-#  value = aws_ebs_snapshot.web_snapshot.id
-#}
-#
-#output "recycle_bin_id" {
-#  value = aws_rbin_rule.web.id
-#}
+output "ebs_id" {
+  value = aws_ebs_volume.web.id
+}
+
+output "efs_id" {
+  value = aws_efs_file_system.web.id
+}

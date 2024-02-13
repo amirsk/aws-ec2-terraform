@@ -58,6 +58,10 @@ resource "aws_security_group" "web" {
   name        = "Web"
   description = "Web Security Group"
   vpc_id      = aws_vpc.web.id
+
+  tags = {
+    Name = "HelloWorldWeb"
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "ingress_rule" {
@@ -70,6 +74,10 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_rule" {
   ip_protocol = each.value.ip_protocol
   to_port     = each.value.to_port
   description = each.value.description
+
+  tags = {
+    Name = "HelloWorldWeb"
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "egress_rule" {
@@ -80,4 +88,31 @@ resource "aws_vpc_security_group_egress_rule" "egress_rule" {
   cidr_ipv4   = each.value.cidr_ipv4
   ip_protocol = each.value.ip_protocol
   description = each.value.description
+
+  tags = {
+    Name = "HelloWorldWeb"
+  }
+}
+
+resource "aws_security_group" "efs" {
+  name        = "EFS"
+  description = "EFS Security Group"
+  vpc_id      = aws_vpc.web.id
+
+  tags = {
+    Name = "HelloWorldEFS"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "efs_ingress_rule" {
+  security_group_id            = aws_security_group.efs.id
+  referenced_security_group_id = aws_security_group.web.id
+  ip_protocol                  = var.efs_ingress_rules.ip_protocol
+  from_port                    = var.efs_ingress_rules.from_port
+  to_port                      = var.efs_ingress_rules.to_port
+  description                  = var.efs_ingress_rules.description
+
+  tags = {
+    Name = "HelloWorldEFS"
+  }
 }
